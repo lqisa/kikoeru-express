@@ -50,6 +50,9 @@ const scrapeStaticWorkMetadataFromDLsite = (id, language) => new Promise((resolv
       // 转换成 jQuery 对象
       const $ = cheerio.load(data);
 
+      // cover fallback
+      work.coverURL = $('meta[name="twitter:image:src"]').attr('content')
+
       // 标题
       work.title = $('meta[property="og:title"]').attr('content');
       // fallback

@@ -209,16 +209,21 @@ const getMetadata = (id, rootFolderName, dir, tagLanguage) => {
  * 返回一个 Promise 对象，处理结果: 'added' or 'failed'
  * @param {number} id work id
  * @param {Array} types img types: ['main', 'sam', 'sam@2x', 'sam@3x', '240x240', '360x360']
+ * @param {string} url cover fallback url
  */
-const getCoverImage = (id, types) => {
+const getCoverImage = (id, types, url) => {
   const rjcode = id
   const id2 = (id % 1000 === 0) ? id : parseInt(id / 1000) * 1000 + 1000;
   const rjcode2 = id2.toString().padStart(id.length,  '0')
   const promises = [];
   types.forEach(type => {
-    let url = `https://img.dlsite.jp/modpub/images2/work/doujin/RJ${rjcode2}/RJ${rjcode}_img_${type}.jpg`;
-    if (type === '240x240'|| type === '360x360') {
-      url = `https://img.dlsite.jp/resize/images2/work/doujin/RJ${rjcode2}/RJ${rjcode}_img_main_${type}.jpg`;
+    if (!url) {
+      url = `https://img.dlsite.jp/modpub/images2/work/doujin/RJ${rjcode2}/RJ${rjcode}_img_${type}.jpg`;
+      if (type === '240x240'|| type === '360x360') {
+        url = `https://img.dlsite.jp/resize/images2/work/doujin/RJ${rjcode2}/RJ${rjcode}_img_main_${type}.jpg`;
+      }
+    } else {
+      url = url.replace(/main(?=\.(jpg|png|webp))/, type)
     }
     promises.push(
       axios.retryGet(url, { responseType: "stream", retry: {} })
@@ -270,7 +275,7 @@ const getCoverImage = (id, types) => {
  * @param {string} folder 音声文件夹对象 { relativePath: '相对路径', rootFolderName: '根文件夹别名', id: '音声ID' }
  */
 const processFolder = (folder) => db.knex('t_work')
-  .select('id')
+  .select('id', 'cover_url_fallback')
   .where('id', '=', folder.id)
   .count()
   .first()
@@ -297,7 +302,7 @@ const processFolder = (folder) => db.knex('t_work')
           message: '封面图片缺失，重新下载封面图片...'
         });
 
-        return getCoverImage(folder.id, lostCoverTypes);
+        return getCoverImage(folder.id, lostCoverTypes, res.cover_url_fallback);
       } else {
         return 'skipped';
       }
@@ -314,7 +319,7 @@ const processFolder = (folder) => db.knex('t_work')
           if (result === 'failed') { // 如果获取元数据失败，跳过封面图片下载
             return 'failed';
           } else { // 下载封面图片
-            return getCoverImage(folder.id, coverTypes);
+            return getCoverImage(folder.id, coverTypes, res.cover_url_fallback);
           }
         });
     }

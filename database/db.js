@@ -30,6 +30,8 @@ const insertWorkMetadata = work => knex.transaction(trx => trx.raw(
       circle_id: work.circle.id,
       nsfw: work.nsfw,
       release: work.release,
+      // 封面回退 URL
+      cover_url_fallback: work.coverURL,
 
       dl_count: work.dl_count,
       price: work.price,

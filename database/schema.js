@@ -15,6 +15,7 @@ const createSchema = () => knex.schema
     table.string('title').notNullable(); // VARCHAR 类型 [音声名称]
     table.integer('circle_id').notNullable(); // INTEGER 类型 [社团id]
     table.boolean('nsfw'); // BOOLEAN 类型
+    table.string('cover_url_fallback') // 封面的回退 URL 用于譬如中文汉化下 cover 指向日文原版路径导致计算 URL 失效
     table.string('release');  // VARCHAR 类型 [贩卖日 (YYYY-MM-DD)]
 
     table.integer('dl_count'); // INTEGER 类型 [售出数]
