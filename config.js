@@ -54,7 +54,7 @@ const defaultConfig = {
   hvdbTimeout: 10000,
   retryDelay: 2000,
   httpProxyHost: '',
-  httpProxyPort: 0,
+  httpProxyPort: 7890,
   listenPort: 8888,
   blockRemoteConnection: false,
   behindProxy: false,

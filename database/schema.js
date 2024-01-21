@@ -9,7 +9,7 @@ const createSchema = () => knex.schema
     table.string('name').notNullable(); // VARCHAR 类型 [社团名称]
   })
   .createTable('t_work', (table) => {
-    table.increments(); // id自增列(INTEGER 类型)，会被用作主键 [音声id]
+    table.string('id').primary(); // id自增列(INTEGER 类型)，会被用作主键 [音声id]
     table.string('root_folder').notNullable(); // VARCHAR 类型 [根文件夹别名]
     table.string('dir').notNullable(); // VARCHAR 类型 [相对存储路径]
     table.string('title').notNullable(); // VARCHAR 类型 [音声名称]
@@ -39,14 +39,14 @@ const createSchema = () => knex.schema
   })
   .createTable('r_tag_work', (table) => {
     table.integer('tag_id');
-    table.integer('work_id');
+    table.string('work_id');
     table.foreign('tag_id').references('id').inTable('t_tag'); // FOREIGN KEY 外键
     table.foreign('work_id').references('id').inTable('t_work'); // FOREIGN KEY 外键
     table.primary(['tag_id', 'work_id']); // PRIMARY KEYprimary 主键
   })
   .createTable('r_va_work', (table) => {
     table.string('va_id');
-    table.integer('work_id');
+    table.string('work_id');
     table.foreign('va_id').references('id').inTable('t_va').onUpdate('CASCADE').onDelete('CASCADE'); // FOREIGN KEY 外键
     table.foreign('work_id').references('id').inTable('t_work').onUpdate('CASCADE').onDelete('CASCADE'); // FOREIGN KEY 外键
     table.primary(['va_id', 'work_id']); // PRIMARY KEYprimary 主键
