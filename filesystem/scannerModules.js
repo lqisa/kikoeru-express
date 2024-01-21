@@ -494,7 +494,7 @@ const performScan = () => {
           });
           
           for (const key in duplicate) {
-            const addedFolder = uniqueFolderList.find(folder => folder.id === parseInt(key));
+            const addedFolder = uniqueFolderList.find(folder => folder.id === key);
             duplicate[key].push(addedFolder); // 最后一项为将要添加到数据库中的音声文件夹
 
             const rjcode = key;
