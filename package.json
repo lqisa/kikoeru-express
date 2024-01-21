@@ -41,7 +41,7 @@
     "start": "node --trace-warnings app.js",
     "dev": "nodemon --trace-warnings app.js",
     "scan": "node --trace-warnings ./filesystem/scanner.js",
-    "build": "pkg package.json --out-path package",
+    "build": "pkg -t node16-win-x64 package.json --out-path package",
     "test": "cross-env eslint . && cross-env NODE_ENV=test mocha test/"
   },
   "author": "Watanuki-Kimihiro",
