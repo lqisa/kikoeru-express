@@ -1,2 +1,2 @@
 const { performScan } = require('./scannerModules')
-performScan();
+performScan()

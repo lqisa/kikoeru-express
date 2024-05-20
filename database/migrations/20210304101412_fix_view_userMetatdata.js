@@ -1,18 +1,18 @@
-exports.up = async function(knex) {
+exports.up = async function (knex) {
   try {
     // Will be recreated by the main program
-    await knex.raw('DROP VIEW IF EXISTS userMetadata');
+    await knex.raw('DROP VIEW IF EXISTS userMetadata')
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.error(error)
+    throw error
   }
-};
+}
 
 // Problematic queries !
 // eslint-disable-next-line no-unused-vars
-exports.down = async function(knex) {
+exports.down = async function (knex) {
   try {
-    await knex.raw('DROP VIEW IF EXISTS userMetadata');
+    await knex.raw('DROP VIEW IF EXISTS userMetadata')
     await knex.raw(
       `CREATE VIEW IF NOT EXISTS userMetadata AS
       SELECT t_work.id,
@@ -46,9 +46,9 @@ exports.down = async function(knex) {
           ) AS userrate
       ON userrate.work_id = t_work.id
       GROUP BY t_work.id
-    `);
+    `)
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.error(error)
+    throw error
   }
-};
+}

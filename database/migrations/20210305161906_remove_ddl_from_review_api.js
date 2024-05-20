@@ -1,4 +1,4 @@
-exports.up = async function(knex) {
+exports.up = async function (knex) {
   try {
     await knex.schema.raw(
       `CREATE VIEW IF NOT EXISTS userMetadata AS
@@ -31,15 +31,15 @@ exports.up = async function(knex) {
           ) AS userrate
       ON userrate.work_id = t_work.id
       GROUP BY t_work.id, userrate.user_name
-    `);
+    `)
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.error(error)
+    throw error
   }
-};
+}
 
 // Do nothing
 // eslint-disable-next-line no-unused-vars
-exports.down = async function(knex) {
+exports.down = async function (knex) {
 
-};
+}

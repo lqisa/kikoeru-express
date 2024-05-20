@@ -1,4 +1,4 @@
-exports.up = async function(knex) {
+exports.up = async function (knex) {
   await knex.raw(`
     CREATE VIEW IF NOT EXISTS staticMetadata AS
     SELECT baseQueryWithVA.*,
@@ -32,9 +32,9 @@ exports.up = async function(knex) {
     LEFT JOIN t_tag ON t_tag.id = r_tag_work.tag_id
     GROUP BY baseQueryWithVA.id;
   `)
-};
+}
 
 // Will break most of the queries! You will need to switch to an earlier version of code.
-exports.down = async function(knex) {
-  knex.raw(`DROP VIEW IF EXISTS staticMetadata`)
-};
+exports.down = async function (knex) {
+  knex.raw('DROP VIEW IF EXISTS staticMetadata')
+}

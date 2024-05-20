@@ -1,10 +1,10 @@
 // Replaced by staticMetadata
-exports.up = async function(knex) {
-  await knex.schema.raw('DROP VIEW IF EXISTS userMetadata');
-};
+exports.up = async function (knex) {
+  await knex.schema.raw('DROP VIEW IF EXISTS userMetadata')
+}
 
 // Bring up old userMetadata to revert
-exports.down = async function(knex) {
+exports.down = async function (knex) {
   try {
     await knex.schema.raw(
       `CREATE VIEW IF NOT EXISTS userMetadata AS
@@ -37,9 +37,9 @@ exports.down = async function(knex) {
           ) AS userrate
       ON userrate.work_id = t_work.id
       GROUP BY t_work.id, userrate.user_name
-    `);
+    `)
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.error(error)
+    throw error
   }
-};
+}

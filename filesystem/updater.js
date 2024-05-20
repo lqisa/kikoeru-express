@@ -3,29 +3,29 @@ const { hideBin } = require('yargs/helpers')
 const { performUpdate } = require('./scannerModules')
 
 const argv = yargs(hideBin(process.argv))
-    .option('refreshAll', {
-        alias: 'all',
-        description: 'Refresh both dynamic and static metadata',
-        type: 'boolean',
-    })
-    .option('includeNSFW', {
-      alias: 'nsfw',
-      description: 'Refresh dynamic metadata and nsfw field',
-      type: 'boolean',
-    })
-    .option('includeTags', {
-      alias: 'tags',
-      description: 'Refresh dynamic metadata and tags',
-      type: 'boolean',
-    })
-    .option('includeVA', {
-      alias: 'vas',
-      description: 'Refresh dynamic metadata and voice actors',
-      type: 'boolean',
-    })
-    .argv;
+  .option('refreshAll', {
+    alias: 'all',
+    description: 'Refresh both dynamic and static metadata',
+    type: 'boolean'
+  })
+  .option('includeNSFW', {
+    alias: 'nsfw',
+    description: 'Refresh dynamic metadata and nsfw field',
+    type: 'boolean'
+  })
+  .option('includeTags', {
+    alias: 'tags',
+    description: 'Refresh dynamic metadata and tags',
+    type: 'boolean'
+  })
+  .option('includeVA', {
+    alias: 'vas',
+    description: 'Refresh dynamic metadata and voice actors',
+    type: 'boolean'
+  })
+  .argv
 
-const updateOptions = {};
+const updateOptions = {}
 
 if (argv.refreshAll) {
   updateOptions.refreshAll = true
@@ -39,8 +39,8 @@ if (argv.refreshAll) {
 
 performUpdate(updateOptions)
   .then(() => {
-    process.exit(0);
+    process.exit(0)
   })
   .catch(err => {
     throw err
-  });
+  })

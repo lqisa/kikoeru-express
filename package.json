@@ -42,7 +42,8 @@
     "dev": "nodemon --trace-warnings app.js",
     "scan": "node --trace-warnings ./filesystem/scanner.js",
     "build": "pkg -t node16-win-x64 package.json --out-path package",
-    "test": "cross-env eslint . && cross-env NODE_ENV=test mocha test/"
+    "test": "cross-env eslint . && cross-env NODE_ENV=test mocha test/",
+    "lint": "eslint . --fix"
   },
   "author": "Watanuki-Kimihiro",
   "contributors": [
@@ -88,11 +89,17 @@
     "chai": "^4.3.4",
     "chai-string": "^1.5.0",
     "cross-env": "^7.0.3",
-    "eslint": "^7.25.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
     "mocha": "^8.3.2",
     "nodemon": "^3.0.3",
     "pkg": "^5.8.1",
+    "prettier": "3.2.5",
     "serve-index": "^1.9.1"
   }
 }

@@ -2,9 +2,9 @@
 // 仍然使用绝对路径导致找不到文件的问题
 
 const { join } = require('path')
-const { existsSync} = require('fs')
+const { existsSync } = require('fs')
 const Umzug = require('@umonaca/umzug')
-const { omitBy, isNil} = require('lodash')
+const { omitBy, isNil } = require('lodash')
 const Promise = require('bluebird')
 const knex = require('knex')
 
@@ -43,7 +43,7 @@ function knexInit (flags) {
   }
 
   if (typeof config !== 'object') {
-    console.error(`Malformed knex config:`)
+    console.error('Malformed knex config:')
     console.error(JSON.stringify(config, null, 2))
     process.exit(1)
   }
@@ -172,7 +172,7 @@ async function knexMigrate (command, flags, progress) {
       await umzug.storage.ensureTable()
       return umzug.up(opts)
     },
-    
+
     // Non standard, used in this project only
     skipAll: async () => {
       flags.skip = true
