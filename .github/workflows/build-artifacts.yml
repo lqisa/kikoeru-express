@@ -25,6 +25,7 @@ jobs:
           node-version: 16
 
       - run: npm install -g @quasar/cli
+      - run: npm config set strict-ssl false
       - run: npm ci
       - run: quasar build && quasar build -m pwa
 
