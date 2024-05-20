@@ -6,6 +6,7 @@ on:
       - "dependabot/**"
     tags:
       - v*
+  workflow_dispatch:
 
 jobs:
   build-front-end:
