@@ -78,14 +78,14 @@ jobs:
       # - run: npm test
 
       - name: check node-sqlite3 bindings
-        run: echo $(ls node_modules/sqlite3/lib/binding)
+        run: echo $(ls node_modules/sqlite3/build/Release)
 
-      - name: "Upload bindings"
-        uses: actions/upload-artifact@v2
-        with:
-          name: node-${{ matrix.node_version }}-${{ matrix.architecture }}-${{ matrix.os }}-binding
-          path: node_modules/sqlite3/lib/binding
-          if-no-files-found: error
+      # - name: "Upload bindings"
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: node-${{ matrix.node_version }}-${{ matrix.architecture }}-${{ matrix.os }}-binding
+      #     path: node_modules/sqlite3/lib/binding
+      #     if-no-files-found: error
 
       # refs/tags/v1.2.3 => v1.2.3
       # refs/heads/unstable => unstable
