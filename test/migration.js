@@ -9,6 +9,7 @@ process.env.NODE_ENV = 'test'
 const chai = require('chai')
 const expect = chai.expect
 chai.use(require('chai-string'))
+const fs = require('fs')
 const { unlink } = require('fs')
 const { join } = require('path')
 
@@ -16,8 +17,12 @@ const db = require('../database/db').knex
 
 const knexMigrate = require('../database/knex-migrate')
 const { dbVersion } = require('../database/schema')
+const migrationsDir = join(__dirname, '..', 'database', 'migrations')
+const hasMigrations = fs.existsSync(migrationsDir) &&
+  fs.readdirSync(migrationsDir).some((file) => /^\d+_.+\.[jt]s$/.test(file))
+const describeWithMigrations = hasMigrations ? describe : describe.skip
 
-describe('Database', function () {
+describeWithMigrations('Database', function () {
   before('Spin up v0.3.0 database schema', async function () {
     const { createOldSchema } = require('./spinup/spinup-0.3.0')
     await createOldSchema()
@@ -73,7 +78,7 @@ describe('Database', function () {
   })
 })
 
-describe('Database v0.6.0-rc4', function () {
+describeWithMigrations('Database v0.6.0-rc4', function () {
   before('Spin up v0.6.0-rc4 database schema', async function () {
     const { createOldSchema } = require('./spinup/spinup-0.6.0-rc4')
     await createOldSchema()

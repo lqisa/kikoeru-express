@@ -1,18 +1,26 @@
 const fs = require('fs')
+const path = require('path')
 const { md5 } = require('../auth/utils')
 const knexMigrate = require('./knex-migrate')
 const { databaseExist, createUser } = require('./db')
-const pjson = require('../package.json')
-const compareVersions = require('compare-versions')
 const { config, updateConfig } = require('../config')
-const { applyFix } = require('../upgrade')
 const { createSchema } = require('./schema')
 
 const initApp = async () => {
-  const configVersion = config.version
-  const currentVersion = pjson.version
+  const migrationDir = path.join(__dirname, 'migrations')
 
   async function runMigrations () {
+    if (!fs.existsSync(migrationDir)) {
+      console.log(' * migrations 目录不存在，跳过增量迁移.')
+      return
+    }
+    const migrationFiles = fs.readdirSync(migrationDir)
+      .filter((file) => /^\d+_.+\.[jt]s$/.test(file))
+    if (migrationFiles.length === 0) {
+      console.log(' * 未检测到待执行的增量迁移脚本.')
+      return
+    }
+
     const log = ({ action, migration }) =>
       console.log('Doing ' + action + ' on ' + migration)
     await knexMigrate('up', {}, log)
@@ -20,16 +28,6 @@ const initApp = async () => {
 
   async function skipMigrations () {
     await knexMigrate('skipAll', {})
-  }
-
-  // Fix a nasty bug introduced in v0.5.1
-  async function fixMigrations () {
-    if (
-      compareVersions.compare(configVersion, 'v0.5.1', '>=') &&
-      compareVersions.compare(configVersion, 'v0.5.3', '<')
-    ) {
-      await knexMigrate('skipAll', { to: '20210108093032' })
-    }
   }
 
   function initDatabaseDir () {
@@ -43,16 +41,9 @@ const initApp = async () => {
     }
   }
 
-  // 迁移或创建数据库结构
-  if (
-    databaseExist &&
-    compareVersions.compare(currentVersion, configVersion, '>')
-  ) {
-    console.log('升级中')
-    const oldVersion = config.version
+  // 仅在数据库存在时运行增量迁移
+  if (databaseExist) {
     try {
-      await applyFix(oldVersion)
-      await fixMigrations()
       await runMigrations()
       updateConfig()
     } catch (error) {
@@ -79,10 +70,8 @@ const initApp = async () => {
       console.error(` ! 在构建数据库结构过程中出错: ${err.message}`)
       process.exit(1)
     }
-    if (compareVersions.compare(currentVersion, configVersion, '>')) {
-      // Update config only. Do not apply fix to database.
-      updateConfig()
-    }
+    // 初始化完成，同步配置版本
+    updateConfig()
   }
 }
 

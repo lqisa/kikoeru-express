@@ -9,6 +9,7 @@ const jschardet = require('jschardet')
 const { getTrackList } = require('../filesystem/utils')
 const { joinFragments } = require('./utils/url')
 const { isValidRequest } = require('./utils/validate')
+const mediaSendOptions = { dotfiles: 'allow' }
 
 // GET (stream) a specific track from work folder
 router.get('/stream/:id/:index',
@@ -27,6 +28,10 @@ router.get('/stream/:id/:index',
           getTrackList(req.params.id, path.join(rootFolder.path, work.dir))
             .then((tracks) => {
               const track = tracks[req.params.index]
+              if (!track) {
+                res.status(404).send({ error: 'Not Found' })
+                return
+              }
 
               const fileName = path.join(rootFolder.path, work.dir, track.subtitle || '', track.title)
               const extName = path.extname(fileName)
@@ -58,7 +63,7 @@ router.get('/stream/:id/:index',
                 res.redirect(offloadUrl)
               } else {
                 // By default, serve file through express
-                res.sendFile(fileName)
+                res.sendFile(fileName, mediaSendOptions)
               }
             })
             .catch(err => next(err))
@@ -85,6 +90,10 @@ router.get('/download/:id/:index',
           getTrackList(req.params.id, path.join(rootFolder.path, work.dir))
             .then((tracks) => {
               const track = tracks[req.params.index]
+              if (!track) {
+                res.status(404).send({ error: 'Not Found' })
+                return
+              }
 
               // Offload from express, 302 redirect to a virtual directory in a reverse proxy like Nginx
               if (config.offloadMedia) {
@@ -102,7 +111,11 @@ router.get('/download/:id/:index',
                 res.redirect(offloadUrl)
               } else {
                 // By default, serve file through express
-                res.download(path.join(rootFolder.path, work.dir, track.subtitle || '', track.title))
+                res.download(
+                  path.join(rootFolder.path, work.dir, track.subtitle || '', track.title),
+                  null,
+                  mediaSendOptions
+                )
               }
             })
             .catch(err => next(err))
