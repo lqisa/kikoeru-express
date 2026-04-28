@@ -123,29 +123,6 @@ router.get('/works',
     }
   })
 
-// GET name of a circle/tag/VA
-router.get('/:field(circle|tag|va)s/:id',
-  param('field').isIn(['circle', 'tag', 'va']),
-  (req, res, next) => {
-    // In case regex matching goes wrong
-    if (!isValidRequest(req, res)) return
-
-    return db.getMetadata({ field: req.params.field, id: req.params.id })
-      .then(item => {
-        if (item) {
-          res.send(item)
-        } else {
-          const errorMessage = {
-            circle: `社团${req.params.id}不存在`,
-            tag: `标签${req.params.id}不存在`,
-            va: `声优${req.params.id}不存在`
-          }
-          res.status(404).send({ error: errorMessage[req.params.field] })
-        }
-      })
-      .catch(err => next(err))
-  })
-
 // eslint-disable-next-line no-unused-vars
 router.get('/search/:keyword?', async (req, res, next) => {
   const keyword = req.params.keyword ? req.params.keyword.trim() : ''
@@ -187,6 +164,59 @@ router.get('/search/:keyword?', async (req, res, next) => {
     // next(err);
   }
 })
+
+// GET list of work ids, restricted by multiple tags (AND logic)
+// 注意：此路由必须放在 /:field(circle|tag|va)s/:id/works 之前，避免被其匹配到
+router.get('/tags-multi/works',
+  // eslint-disable-next-line no-unused-vars
+  async (req, res, next) => {
+    if (!isValidRequest(req, res)) return
+
+    const tagIdsParam = req.query.tagIds
+    if (!tagIdsParam) {
+      return res.status(400).send({ error: '请提供 tagIds 参数' })
+    }
+
+    const tagIds = tagIdsParam.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+    if (tagIds.length === 0) {
+      return res.status(400).send({ error: '无效的标签ID' })
+    }
+
+    const currentPage = parseInt(req.query.page) || 1
+    const order = req.query.order || 'release'
+    const sort = req.query.sort || 'desc'
+    const offset = (currentPage - 1) * PAGE_SIZE
+    const username = config.auth ? req.user.name : 'admin'
+    const shuffleSeed = req.query.seed ? req.query.seed : 7
+
+    try {
+      const query = () => db.getWorksByTags({ tagIds, username })
+      const totalCount = await query().count('id as count')
+
+      let works = null
+
+      if (order === 'random') {
+        works = await query().offset(offset).limit(PAGE_SIZE).orderBy(db.knex.raw('id % ?', shuffleSeed))
+      } else {
+        works = await query().offset(offset).limit(PAGE_SIZE).orderBy(order, sort)
+          .orderBy([{ column: 'release', order: 'desc' }, { column: 'id', order: 'desc' }])
+      }
+
+      works = normalize(works)
+
+      res.send({
+        works,
+        pagination: {
+          currentPage,
+          pageSize: PAGE_SIZE,
+          totalCount: totalCount[0].count
+        }
+      })
+    } catch (err) {
+      res.status(500).send({ error: '查询过程中出错' })
+      console.error(err)
+    }
+  })
 
 // GET list of work ids, restricted by circle/tag/VA
 router.get('/:field(circle|tag|va)s/:id/works',
@@ -233,6 +263,29 @@ router.get('/:field(circle|tag|va)s/:id/works',
       console.error(err)
       // next(err);
     }
+  })
+
+// GET name of a circle/tag/VA
+router.get('/:field(circle|tag|va)s/:id',
+  param('field').isIn(['circle', 'tag', 'va']),
+  (req, res, next) => {
+    // In case regex matching goes wrong
+    if (!isValidRequest(req, res)) return
+
+    return db.getMetadata({ field: req.params.field, id: req.params.id })
+      .then(item => {
+        if (item) {
+          res.send(item)
+        } else {
+          const errorMessage = {
+            circle: `社团${req.params.id}不存在`,
+            tag: `标签${req.params.id}不存在`,
+            va: `声优${req.params.id}不存在`
+          }
+          res.status(404).send({ error: errorMessage[req.params.field] })
+        }
+      })
+      .catch(err => next(err))
   })
 
 // GET list of circles/tags/VAs

@@ -597,12 +597,39 @@ const getMetadata = ({ field = 'circle', id } = {}) => {
   return knex(`t_${field}`).select('*').where('id', '=', id).first()
 }
 
+/**
+ * 根据多个标签ID查询音声（AND 逻辑，作品必须同时包含所有指定标签）
+ * @param {Number[]} tagIds 标签ID数组
+ * @param {String} username 用户名
+ */
+const getWorksByTags = ({ tagIds, username = '' } = {}) => {
+  const ratingSubQuery = knex('t_review')
+    .select(['t_review.work_id', 't_review.rating'])
+    .join('t_work', 't_work.id', 't_review.work_id')
+    .where('t_review.user_name', username)
+    .as('userrate')
+
+  // 找到同时拥有所有指定标签的作品
+  // 通过 GROUP BY + HAVING COUNT = tagIds.length 实现 AND 逻辑
+  const workIdQuery = knex('r_tag_work')
+    .select('work_id')
+    .whereIn('tag_id', tagIds)
+    .groupBy('work_id')
+    .having(knex.raw('COUNT(DISTINCT tag_id) = ?', [tagIds.length]))
+
+  return knex('staticMetadata')
+    .select(['staticMetadata.*', 'userrate.rating AS userRating'])
+    .leftJoin(ratingSubQuery, 'userrate.work_id', 'staticMetadata.id')
+    .where('id', 'in', workIdQuery)
+}
+
 module.exports = {
   knex,
   insertWorkMetadata,
   getWorkMetadata,
   removeWork,
   getWorksBy,
+  getWorksByTags,
   getWorksByKeyWord,
   updateWorkMetadata,
   getLabels,

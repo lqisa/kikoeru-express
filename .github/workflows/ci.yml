@@ -1,0 +1,50 @@
+name: Kikoeru Build CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: kikoeru-quasar/pnpm-lock.yaml
+
+      - name: Build Frontend (Quasar v2 + Vite)
+        run: |
+          cd kikoeru-quasar
+          pnpm install
+          pnpm exec quasar build
+
+      - name: Setup Backend & Integrate Frontend
+        run: |
+          cd kikoeru-express
+          npm install
+          # 清理旧静态文件并同步新构建的 SPA
+          rm -rf static/*
+          cp -r ../kikoeru-quasar/dist/spa/* ./static/
+
+      - name: Run Backend Tests
+        run: |
+          cd kikoeru-express
+          npm test
+
+      - name: Build Executable (pkg)
+        run: |
+          cd kikoeru-express
+          npm run build
