@@ -64,11 +64,15 @@ const initApp = async () => {
       console.error(err.message)
       process.exit(1)
     }
-    try {
-      await skipMigrations()
-    } catch (err) {
-      console.error(` ! 在构建数据库结构过程中出错: ${err.message}`)
-      process.exit(1)
+    if (fs.existsSync(migrationDir)) {
+      try {
+        await skipMigrations()
+      } catch (err) {
+        console.error(` ! 在构建数据库结构过程中出错: ${err.message}`)
+        process.exit(1)
+      }
+    } else {
+      console.log(' * migrations 目录不存在，跳过标记迁移.')
     }
     // 初始化完成，同步配置版本
     updateConfig()
