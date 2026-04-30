@@ -51,7 +51,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2019
+          - os: windows-latest
             node_version: 24
             architecture: x64
             pkg_target: node24-win-x64
@@ -125,7 +125,7 @@ jobs:
           - os: ubuntu-latest
             archive_name_prefix: kikoeru-linux-arm64
 
-          - os: windows-2019
+          - os: windows-latest
             archive_name_prefix: kikoeru-win-x64
 
     steps:
@@ -142,7 +142,7 @@ jobs:
         run: ls -al .
 
       - name: Test pkg binary on Windows
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-latest' }}
         shell: pwsh
         run: |
           $PSVersionTable
