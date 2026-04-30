@@ -19,6 +19,9 @@ jobs:
           repository: lqisa/kikoeru-quasar
           ref: unstable
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup node
         uses: actions/setup-node@v4
         with:
@@ -66,6 +69,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup node
         uses: actions/setup-node@v4
