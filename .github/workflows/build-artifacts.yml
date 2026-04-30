@@ -24,8 +24,7 @@ jobs:
         with:
           node-version: 14
 
-      - run: npm config set strict-ssl false
-      - run: npm ci
+      - run: pnpm install
       - run: npx quasar build && npx quasar build -m pwa
 
       - name: "Upload PWA"
@@ -53,14 +52,14 @@ jobs:
       matrix:
         include:
           - os: windows-2019
-            node_version: 18
+            node_version: 24
             architecture: x64
-            pkg_target: node18-win-x64
+            pkg_target: node24-win-x64
             archive_name_prefix: kikoeru-win-x64
           - os: ubuntu-latest
-            node_version: 18
+            node_version: 24
             architecture: x64
-            pkg_target: node18-linux-arm64
+            pkg_target: node24-linux-arm64
             archive_name_prefix: kikoeru-linux-arm64
 
     name: Node ${{ matrix.node_version }} - ${{ matrix.architecture }} on ${{ matrix.os }}
@@ -74,7 +73,7 @@ jobs:
           node-version: ${{ matrix.node_version }}
           architecture: ${{ matrix.architecture }}
 
-      - run: npm install
+      - run: pnpm install
 
       - name: check node-sqlite3 bindings
         run: echo $(ls node_modules/sqlite3/build/Release)
